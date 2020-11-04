@@ -28,10 +28,10 @@ require 'includes/functions.php';
         <div class="collapse navbar-collapse" id="navbarText">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">Accueil(current)</span></a>
+                    <a class="nav-link" href="#">Accueil</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Produits</a>
+                    <a class="nav-link" href="products.php">Produits</a>
                 </li>
             </ul>
 
@@ -44,6 +44,7 @@ require 'includes/functions.php';
                     </a>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                         <a class="dropdown-item" href="#">Profil</a>
+                        <a class="dropdown-item" href="addproducts.php">Ajouter un article</a>
                         <a class="dropdown-item" href="?logout">Déconnexion</a>
                     </div>
                 </div>

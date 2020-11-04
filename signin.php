@@ -1,7 +1,7 @@
 <?php
 
 $title = 'Accueil - Le Chouette Coin';
-// Function doit $etre en amont ..
+
 require 'includes/header.php';
 
 if (!empty($_POST['email_signup']) && !empty($_POST['password1_signup']) && !empty($_POST['username_signup'])
@@ -16,7 +16,7 @@ if (!empty($_POST['email_signup']) && !empty($_POST['password1_signup']) && !emp
     $email = strip_tags($_POST['email_login']);
     $password = strip_tags($_POST['password_login']);
 
-    connexion($conn, $email, $password);
+    connexion($email, $password);
 } else {
     if (isset($_POST)) {
         unset($_POST);
