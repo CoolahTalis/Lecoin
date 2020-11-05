@@ -19,7 +19,8 @@ require 'includes/functions.php';
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- NAVBAR  -->
+    <nav class="navbar navbar-expand-lg" style="background: url(navfootbg.jpg);">
         <a class="navbar-brand" href="index.php">Le chouette coin</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
             aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
@@ -28,13 +29,15 @@ require 'includes/functions.php';
         <div class="collapse navbar-collapse" id="navbarText">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">Accueil</span></a>
+                    <a class="nav-link" href="index.php">Accueil</span></a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="products.php">Produits</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contact</a>
+                </li>
             </ul>
-
             <ul class="navbar-nav">
                 <?php if (!empty($_SESSION)) { ?>
                 <div class="dropdown nav-item dropleft">
@@ -43,7 +46,7 @@ require 'includes/functions.php';
                         <?php echo $_SESSION['username']; ?>
                     </a>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                        <a class="dropdown-item" href="#">Profil</a>
+                        <a class="dropdown-item" href="profile.php">Profil</a>
                         <a class="dropdown-item" href="addproducts.php">Ajouter un article</a>
                         <a class="dropdown-item" href="?logout">Déconnexion</a>
                     </div>

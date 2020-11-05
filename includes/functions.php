@@ -71,9 +71,44 @@ function connexion($email, $password)
 function affichageProduits()
 {
     global $conn;
+    // SELECT QUERY AVEC JOINT ...
     $sth = $conn->prepare('SELECT p.*,c.categories_name,u.username FROM products AS p LEFT JOIN categories AS c ON p.category_id = c.categories_id LEFT JOIN users AS u ON p.user_id = u.id');
     $sth->execute();
+    // CREE UN ARRAY PRODUCTS AVEC * DATAS IN
+    $products = $sth->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($products as $product) {
+        ?>
+<tr>
+    <th scope="row"><?php echo $product['products_id']; ?>
+    </th>
+    <td><?php echo $product['products_name']; ?>
+    </td>
+    <td><?php echo $product['description']; ?>
+    </td>
+    <td><?php echo $product['price']; ?> €
+    </td>
+    <td><?php echo $product['city']; ?>
+    </td>
+    <td><?php echo $product['categories_name']; ?>
+    </td>
+    <td><?php echo $product['username']; ?>
+    </td>
+    <td> <a
+            href="product.php?id=<?php echo $product['products_id']; ?>">Afficher
+            article </a>
+    </td>
+</tr>
+<?php
+    }
+}
 
+function affichageProduitsByUser($user_id)
+{
+    global $conn;
+    // SELECT QUERY AVEC JOINT ...
+    $sth = $conn->prepare("SELECT p.*,c.categories_name FROM products AS p LEFT JOIN categories AS c ON p.category_id = c.categories_id WHERE p.user_id = {$user_id}");
+    $sth->execute();
+    // CREE UN ARRAY PRODUCTS AVEC * DATAS IN
     $products = $sth->fetchAll(PDO::FETCH_ASSOC);
     foreach ($products as $product) {
         ?>
@@ -90,11 +125,19 @@ function affichageProduits()
     </td>
     <td><?php echo $product['categories_name']; ?>
     </td>
-    <td><?php echo $product['username']; ?>
+    <!-- PHP? QUERY GET ENVOIE LES INFOS DE LA PAGE POUR L'ID -->
+    <td> <a href="product.php?id=<?php echo $product['products_id']; ?>"
+            class="btn btn-outline-primary">Afficher</a>
     </td>
-    <td> <a
-            href="product.php?id=<?php echo $product['products_id']; ?>">Afficher
-            article</a>
+    <td> <a href=" editproducts.php?id=<?php echo $product['products_id']; ?>"
+            class="btn btn-outline-warning">Editer</a>
+    </td>
+    <td>
+        <form action="process.php" method="POST">
+            <input type="hidden" name="product_id"
+                value="<?php echo $product['products_id']; ?>">
+            <input type="submit" name="product_delete" class="btn btn-outline-danger" value="Supprimer">
+        </form>
     </td>
 </tr>
 <?php
@@ -104,6 +147,7 @@ function affichageProduits()
 function affichageProduit($id)
 {
     global $conn;
+
     $sth = $conn->prepare("SELECT p.*,c.categories_name,u.username FROM products AS p LEFT JOIN categories AS c ON p.category_id = c.categories_id LEFT JOIN users AS u ON p.user_id = u.id WHERE p.products_id = {$id}");
     $sth->execute();
 
@@ -116,7 +160,7 @@ function affichageProduit($id)
         </p>
         <p><?php echo $product['city']; ?>
         </p>
-        <button class="btn btn-danger"><?php echo $product['price']; ?> </button>
+        <button class="btn btn-danger"><?php echo $product['price']; ?> € </button>
     </div>
 </div>
 <?php
@@ -125,11 +169,11 @@ function affichageProduit($id)
 function ajoutProduits($name, $description, $price, $city, $category, $user_id)
 {
     global $conn;
-    // Vérification du prix (doit être un entier, et inférieur à 1 million d'euros)
+    // VERIFICATION DU PRIX (DOIT ETRE UN ENTIER, ET INFERIEUR A 1M€)
     if (is_int($price) && $price > 0 && $price < 1000000) {
-        // Utilisation du try/catch pour capturer les erreurs PDO/SQL
+        // UTILISATION DU TRY/CATCH POUR RECUP ERROR SQL/PDO
         try {
-            // Création de la requête avec tous les champs du formulaire
+            // CREATION INSERT QUERY PDO POUR L'AJOUT DE DONNÉES DANS LA BDD.. A NOTER QUE ID S'AUTO INCREMENT ET USER_ID EST RECUP VIA TOKEN DE $_SESSION..
             $sth = $conn->prepare('INSERT INTO products (products_name,description,price,city,category_id,user_id) VALUES (:products_name, :description, :price, :city, :category_id, :user_id)');
             $sth->bindValue(':products_name', $name, PDO::PARAM_STR);
             $sth->bindValue(':description', $description, PDO::PARAM_STR);
@@ -138,10 +182,35 @@ function ajoutProduits($name, $description, $price, $city, $category, $user_id)
             $sth->bindValue(':category_id', $category, PDO::PARAM_INT);
             $sth->bindValue(':user_id', $user_id, PDO::PARAM_INT);
 
-            // Affichage conditionnel du message de réussite
+            // AFFICHAGE CONDITIONNEL DU SUCCESS MSG
             if ($sth->execute()) {
                 echo "<div class='alert alert-success'> Votre article a été ajouté à la base de données </div>";
+                // REDIRECTION VERS L'ARTICLE DERNIEREMENT AJOUTE W/ LASTINSERTID QUI EST UNE FONCTION PDO
                 header('Location: product.php?id='.$conn->lastInsertId());
+            }
+        } catch (PDOException $e) {
+            echo 'Error: '.$e->getMessage();
+        }
+    }
+}
+
+function modifProduits($name, $description, $price, $city, $category, $id, $user_id)
+{
+    global $conn;
+
+    if (is_int($price) && $price > 0 && $price < 1000000) {
+        try {
+            $sth = $conn->prepare('UPDATE products SET products_name=:products_name, description=:description, price=:price, city=:city, category_id=:category_id WHERE products_id=:products_id AND user_id=:user_id');
+            $sth->bindValue(':products_name', $name);
+            $sth->bindValue(':description', $description);
+            $sth->bindValue(':price', $price);
+            $sth->bindValue(':city', $city);
+            $sth->bindValue(':category_id', $category);
+            $sth->bindValue(':products_id', $id);
+            $sth->bindValue(':user_id', $user_id);
+            if ($sth->execute()) {
+                echo "<div class= 'alert alert-success'> Votre modification a bien été prise en compte </div>";
+                header("Location: product.php?id={$id}");
             }
         } catch (PDOException $e) {
             echo 'Error: '.$e->getMessage();

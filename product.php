@@ -3,6 +3,6 @@
 $title = 'Fiche produit - Le Chouette Coin';
 require 'includes/header.php';
 
-affichageProduits($_GET['id']);
+affichageProduit($_GET['id']);
 
 require 'includes/footer.php';
